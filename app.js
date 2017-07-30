@@ -1,36 +1,33 @@
-var fs = require('fs');
+var mysql = require('mysql');
 
-fs.readFile('./madeira.json', 'utf8', function(err, data){
-	
-	if (err) throw err;
-	
-	var lat = 32.6676611;
-	var lon = -16.9779316;
-	
-	var latFloor = Math.floor(lat *100000) / 100000;
-	var latCeil = Math.ceil(lat *100000) / 100000;
-	var lonFloor = Math.floor(lon *100000) / 100000;
-	var lonCeil = Math.ceil(lon *100000) / 100000;
-	
-	var obj = JSON.parse(data);
-	var id = 0;
-	for (var i = 0; i < obj.length; i++){
-		if(obj[i].lat >= latFloor && obj[i].lat <= latCeil && obj[i].lon >= lonFloor && obj[i].lon <= lonCeil){
-			id = obj[i].id;
-			console.log(id);
-		}	
-	}
+var connection = mysql.createConnection({
+	host : 'localhost',
+	user: 'root',
+	password : '',
+	database : 'nominatim',
+	multipleStatements: true,
+});
 
-	if(id != 0){
-		for(var i = 0; i < obj.length; i++){
-			if(obj[i].hasOwnProperty('nodes') && obj[i].hasOwnProperty('tags') && obj[i].tags.hasOwnProperty('name')){
+var latitude = 32.701895;
+var longitude = -16.770934;
+
+var query = "SELECT * from bounding_boxes WHERE southLatitude <= '" + latitude
+				+ "' AND northLatitude >= '" + latitude 
+				+ "' AND westLongitude <= '" + longitude
+				+ "' AND eastLongitude >= '" + longitude + "'";
+
+console.log(query);			
 				
-				for(var j = 0; j < obj[i].nodes.length; j++){
-					if(obj[i].nodes[j] == id){
-						console.log(obj[i].tags.name);
-					}
-				}
-			}		
-		}
+connection.query(query, function(err, results, fields) {
+	if(results.length > 0){
+		connection.query("SELECT * from roads_data WHERE id = '" + results[0].id_roads_data + "'", function(err, results, fields) {
+			if(results.length > 0){
+				console.log("Road: " + results[0].road);
+				console.log("Suburb: " + results[0].suburb);
+				console.log("City: " + results[0].city);
+			}
+		});
+	} else {
+		console.log("Nenhuma estrada correspondente!");
 	}
 });
