@@ -1,4 +1,5 @@
 var fs = require('fs');
+var wait = require('wait-for-stuff');
 
 module.exports = {
 	getRoadsData: function(mysql_module, request_module){
@@ -13,6 +14,7 @@ module.exports = {
 					if(obj[i].tags.name != "Bus"){
 						mysql_module.getRoadsData(request_module, obj[i].tags.name);
 					}
+					wait.for.time(1);
 				}
 			}
 		})
