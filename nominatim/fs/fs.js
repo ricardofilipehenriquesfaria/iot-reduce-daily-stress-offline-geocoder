@@ -12,9 +12,9 @@ module.exports = {
 				if(obj[i].hasOwnProperty('nodes') && obj[i].hasOwnProperty('tags') && obj[i].tags.hasOwnProperty('name')){
 					if(obj[i].tags.name != "Bus" && obj[i].tags.name != "C"){
 						console.log(obj[i].tags.name);
-						mysql_module.getRoadsData(request_module, obj[i].tags.name);
+						request_module.getRoadsData(mysql_module, obj[i].tags.name);
 					}
-					wait.for.time(5);
+					wait.for.time(30);
 				}
 			}
 		})
